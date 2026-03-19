@@ -1,0 +1,1165 @@
+<!doctype html>
+<html lang="en" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Freelancer AI Command Center</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet">
+  <script>
+tailwind.config = {
+  theme: {
+    extend: {
+      fontFamily: {
+        outfit: ['Outfit', 'sans-serif'],
+        mono: ['JetBrains Mono', 'monospace']
+      }
+    }
+  }
+}
+</script>
+  <style>
+html, body { height: 100%; margin: 0; font-family: 'Outfit', sans-serif; }
+body { background: #05070f; color: #e2e8f0; overflow-x: hidden; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #0a0e1a; }
+::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #6366f1, #06b6d4); border-radius: 3px; }
+
+/* Glow keyframes */
+@keyframes glowPulse {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.05); }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-12px); }
+}
+@keyframes float2 {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-8px) rotate(2deg); }
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(40px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes typewriter {
+  from { width: 0; }
+  to { width: 100%; }
+}
+@keyframes blink {
+  50% { border-color: transparent; }
+}
+@keyframes particleFloat {
+  0% { transform: translateY(0) translateX(0); opacity: 0; }
+  20% { opacity: 1; }
+  80% { opacity: 1; }
+  100% { transform: translateY(-300%) translateX(50px); opacity: 0; }
+}
+@keyframes orbitGlow {
+  0% { transform: rotate(0deg) translateX(120px) rotate(0deg); }
+  100% { transform: rotate(360deg) translateX(120px) rotate(-360deg); }
+}
+@keyframes gradientShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+@keyframes progressBar {
+  from { width: 0%; }
+  to { width: var(--progress); }
+}
+@keyframes chatBubble {
+  from { opacity: 0; transform: translateY(10px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.glow-pulse { animation: glowPulse 3s ease-in-out infinite; }
+.float-anim { animation: float 4s ease-in-out infinite; }
+.float-anim-2 { animation: float2 5s ease-in-out infinite; }
+.slide-up { animation: slideUp 0.8s ease-out forwards; }
+.fade-in { animation: fadeIn 1s ease-out forwards; }
+
+/* Glass card base */
+.glass-card {
+  background: linear-gradient(135deg, rgba(15,20,40,0.8), rgba(10,14,30,0.6));
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(99,102,241,0.15);
+  border-radius: 16px;
+  transition: all 0.4s cubic-bezier(0.4,0,0.2,1);
+}
+.glass-card:hover {
+  border-color: rgba(99,102,241,0.4);
+  box-shadow: 0 0 30px rgba(99,102,241,0.15), 0 0 60px rgba(6,182,212,0.08);
+  transform: translateY(-4px);
+}
+
+.glass-card-strong {
+  background: linear-gradient(135deg, rgba(20,25,50,0.9), rgba(15,18,35,0.7));
+  backdrop-filter: blur(24px);
+  border: 1px solid rgba(139,92,246,0.2);
+  border-radius: 20px;
+  transition: all 0.4s cubic-bezier(0.4,0,0.2,1);
+}
+
+/* Gradient text */
+.gradient-text {
+  background: linear-gradient(135deg, #818cf8, #06b6d4, #a78bfa);
+  background-size: 200% 200%;
+  animation: gradientShift 4s ease infinite;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Glow button */
+.glow-btn {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+.glow-btn::before {
+  content: '';
+  position: absolute;
+  top: -2px; left: -2px; right: -2px; bottom: -2px;
+  background: linear-gradient(135deg, #6366f1, #06b6d4, #a78bfa);
+  border-radius: inherit;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.glow-btn:hover::before { opacity: 1; }
+.glow-btn:hover {
+  box-shadow: 0 0 25px rgba(99,102,241,0.4), 0 0 50px rgba(6,182,212,0.2);
+  transform: translateY(-2px);
+}
+
+/* Scroll reveal */
+.reveal-item {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.7s cubic-bezier(0.4,0,0.2,1);
+}
+.reveal-item.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Particle */
+.particle {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/* Progress bar animation */
+.progress-fill {
+  animation: progressBar 1.5s ease-out forwards;
+}
+
+/* Chat animation */
+.chat-bubble-anim {
+  animation: chatBubble 0.4s ease-out forwards;
+}
+
+/* Nav */
+.nav-glass {
+  background: rgba(5,7,15,0.85);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(99,102,241,0.1);
+}
+
+/* Icon container glow */
+.icon-glow {
+  position: relative;
+}
+.icon-glow::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(99,102,241,0.3), transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.icon-glow:hover::after { opacity: 1; }
+
+/* Section divider */
+.section-glow-line {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(99,102,241,0.3), rgba(6,182,212,0.3), transparent);
+}
+
+/* Mobile menu */
+.mobile-menu {
+  transform: translateX(100%);
+  transition: transform 0.3s ease;
+}
+.mobile-menu.active {
+  transform: translateX(0);
+}
+</style>
+  <style>body { box-sizing: border-box; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+ </head>
+ <body class="h-full">
+  <div id="app-wrapper" class="w-full h-full overflow-auto relative"><!-- Ambient background glows -->
+   <div class="fixed inset-0 pointer-events-none overflow-hidden" style="z-index:0;">
+    <div class="absolute top-0 left-1/4 w-96 h-96 rounded-full glow-pulse" style="background: radial-gradient(circle, rgba(99,102,241,0.12), transparent 70%);"></div>
+    <div class="absolute top-1/3 right-1/6 w-80 h-80 rounded-full glow-pulse" style="background: radial-gradient(circle, rgba(6,182,212,0.1), transparent 70%); animation-delay: 1.5s;"></div>
+    <div class="absolute bottom-1/4 left-1/3 w-72 h-72 rounded-full glow-pulse" style="background: radial-gradient(circle, rgba(139,92,246,0.1), transparent 70%); animation-delay: 3s;"></div>
+   </div><!-- Particles Container -->
+   <div id="particles" class="fixed inset-0 pointer-events-none" style="z-index:1;"></div><!-- NAVIGATION -->
+   <nav class="nav-glass fixed top-0 left-0 right-0 z-50 px-4 md:px-8 py-4">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+     <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background: linear-gradient(135deg, #6366f1, #06b6d4);"><i data-lucide="zap" class="w-5 h-5 text-white"></i>
+      </div><span class="font-outfit font-bold text-lg text-white tracking-tight">Freelancer AI</span>
+     </div>
+     <div class="hidden md:flex items-center gap-8"><a href="#features" class="text-sm text-gray-400 hover:text-white transition-colors">Features</a> <a href="#clients" class="text-sm text-gray-400 hover:text-white transition-colors">Clients</a> <a href="#income" class="text-sm text-gray-400 hover:text-white transition-colors">Income</a> <a href="#portfolio" class="text-sm text-gray-400 hover:text-white transition-colors">Portfolio</a> <a href="#contact" class="text-sm text-gray-400 hover:text-white transition-colors">Contact</a>
+     </div>
+     <div class="hidden md:flex items-center gap-3"><button class="px-4 py-2 text-sm text-gray-300 hover:text-white transition-colors">Sign In</button> <button class="glow-btn px-5 py-2.5 rounded-xl text-sm font-medium text-white" style="background: linear-gradient(135deg, #6366f1, #7c3aed);"> Get Started </button>
+     </div><button id="mobileMenuBtn" class="md:hidden text-white"> <i data-lucide="menu" class="w-6 h-6"></i> </button>
+    </div>
+   </nav><!-- Mobile Menu -->
+   <div id="mobileMenu" class="mobile-menu fixed top-0 right-0 w-72 h-full z-50" style="background: rgba(10,14,30,0.98); backdrop-filter: blur(20px);">
+    <div class="p-6"><button id="mobileMenuClose" class="mb-8 text-gray-400 hover:text-white"><i data-lucide="x" class="w-6 h-6"></i></button>
+     <div class="flex flex-col gap-6"><a href="#features" class="text-gray-300 hover:text-white transition-colors" onclick="closeMobileMenu()">Features</a> <a href="#clients" class="text-gray-300 hover:text-white transition-colors" onclick="closeMobileMenu()">Clients</a> <a href="#income" class="text-gray-300 hover:text-white transition-colors" onclick="closeMobileMenu()">Income</a> <a href="#portfolio" class="text-gray-300 hover:text-white transition-colors" onclick="closeMobileMenu()">Portfolio</a> <a href="#contact" class="text-gray-300 hover:text-white transition-colors" onclick="closeMobileMenu()">Contact</a>
+      <div class="section-glow-line my-2"></div><button class="glow-btn px-5 py-3 rounded-xl text-sm font-medium text-white text-center" style="background: linear-gradient(135deg, #6366f1, #7c3aed);">Get Started</button>
+     </div>
+    </div>
+   </div><!-- ========== HERO SECTION ========== -->
+   <section class="relative pt-28 pb-16 md:pt-36 md:pb-24 px-4 md:px-8" style="z-index:2;">
+    <div class="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 lg:gap-8 items-center">
+     <div class="slide-up">
+      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-6" style="background: rgba(99,102,241,0.1); border: 1px solid rgba(99,102,241,0.2);">
+       <div class="w-2 h-2 rounded-full bg-green-400" style="box-shadow: 0 0 8px rgba(74,222,128,0.6);"></div><span class="text-xs font-medium text-indigo-300">AI-Powered Command Center</span>
+      </div>
+      <h1 id="heroHeadline" class="font-outfit font-900 text-4xl md:text-5xl lg:text-6xl leading-tight mb-6"><span class="text-white">Your Freelance Business,</span><br><span class="gradient-text">Controlled by Intelligence.</span></h1>
+      <p id="heroSubheading" class="text-gray-400 text-lg md:text-xl leading-relaxed mb-8 max-w-lg">Manage clients, proposals, payments, deadlines, and productivity using one intelligent dashboard.</p>
+      <div class="flex flex-wrap gap-4"><button class="glow-btn px-7 py-3.5 rounded-xl font-semibold text-white flex items-center gap-2.5" style="background: linear-gradient(135deg, #6366f1, #7c3aed);"> <i data-lucide="rocket" class="w-5 h-5"></i> Launch Dashboard </button> <button class="px-7 py-3.5 rounded-xl font-semibold text-gray-300 flex items-center gap-2.5 transition-all hover:text-white hover:border-indigo-400" style="border: 1px solid rgba(99,102,241,0.3); background: rgba(99,102,241,0.05);"> <i data-lucide="compass" class="w-5 h-5"></i> Explore Features </button>
+      </div>
+      <div class="flex items-center gap-6 mt-10">
+       <div class="flex -space-x-2">
+        <div class="w-8 h-8 rounded-full border-2 flex items-center justify-center text-xs font-bold" style="border-color: #05070f; background: linear-gradient(135deg, #6366f1, #06b6d4);">
+         A
+        </div>
+        <div class="w-8 h-8 rounded-full border-2 flex items-center justify-center text-xs font-bold" style="border-color: #05070f; background: linear-gradient(135deg, #a78bfa, #f472b6);">
+         R
+        </div>
+        <div class="w-8 h-8 rounded-full border-2 flex items-center justify-center text-xs font-bold" style="border-color: #05070f; background: linear-gradient(135deg, #06b6d4, #10b981);">
+         K
+        </div>
+        <div class="w-8 h-8 rounded-full border-2 flex items-center justify-center text-xs font-bold" style="border-color: #05070f; background: linear-gradient(135deg, #f59e0b, #ef4444);">
+         S
+        </div>
+       </div>
+       <div>
+        <div class="text-white font-semibold text-sm">
+         12,000+ Freelancers
+        </div>
+        <div class="text-gray-500 text-xs">
+         Trust the Command Center
+        </div>
+       </div>
+      </div>
+     </div><!-- Hero Dashboard Illustration -->
+     <div class="relative float-anim" style="animation-delay: 0.5s;">
+      <div class="glass-card-strong p-5 md:p-6"><!-- Mini dashboard header -->
+       <div class="flex items-center justify-between mb-5">
+        <div class="flex items-center gap-2">
+         <div class="w-3 h-3 rounded-full bg-red-500"></div>
+         <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+         <div class="w-3 h-3 rounded-full bg-green-500"></div>
+        </div><span class="text-xs text-gray-500 font-mono">dashboard.ai</span>
+       </div><!-- Stats row -->
+       <div class="grid grid-cols-3 gap-3 mb-5">
+        <div class="rounded-xl p-3 text-center" style="background: rgba(99,102,241,0.1); border: 1px solid rgba(99,102,241,0.15);">
+         <div class="text-xl font-bold text-white">
+          ₹4.2L
+         </div>
+         <div class="text-xs text-indigo-300">
+          Revenue
+         </div>
+        </div>
+        <div class="rounded-xl p-3 text-center" style="background: rgba(6,182,212,0.1); border: 1px solid rgba(6,182,212,0.15);">
+         <div class="text-xl font-bold text-white">
+          24
+         </div>
+         <div class="text-xs text-cyan-300">
+          Clients
+         </div>
+        </div>
+        <div class="rounded-xl p-3 text-center" style="background: rgba(139,92,246,0.1); border: 1px solid rgba(139,92,246,0.15);">
+         <div class="text-xl font-bold text-white">
+          98%
+         </div>
+         <div class="text-xs text-purple-300">
+          On-Time
+         </div>
+        </div>
+       </div><!-- Mini chart -->
+       <div class="rounded-xl p-4 mb-4" style="background: rgba(15,20,40,0.6); border: 1px solid rgba(99,102,241,0.1);">
+        <div class="flex items-end gap-1.5 h-20">
+         <div class="flex-1 rounded-t" style="height:40%; background: linear-gradient(to top, #6366f1, #818cf8);"></div>
+         <div class="flex-1 rounded-t" style="height:60%; background: linear-gradient(to top, #6366f1, #818cf8);"></div>
+         <div class="flex-1 rounded-t" style="height:45%; background: linear-gradient(to top, #6366f1, #818cf8);"></div>
+         <div class="flex-1 rounded-t" style="height:80%; background: linear-gradient(to top, #6366f1, #818cf8);"></div>
+         <div class="flex-1 rounded-t" style="height:70%; background: linear-gradient(to top, #6366f1, #818cf8);"></div>
+         <div class="flex-1 rounded-t" style="height:90%; background: linear-gradient(to top, #06b6d4, #22d3ee);"></div>
+         <div class="flex-1 rounded-t" style="height:75%; background: linear-gradient(to top, #6366f1, #818cf8);"></div>
+        </div>
+        <div class="flex justify-between mt-2 text-xs text-gray-600"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+        </div>
+       </div><!-- Activity -->
+       <div class="flex items-center gap-3 p-3 rounded-xl" style="background: rgba(74,222,128,0.05); border: 1px solid rgba(74,222,128,0.15);">
+        <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: rgba(74,222,128,0.15);"><i data-lucide="check-circle" class="w-4 h-4 text-green-400"></i>
+        </div>
+        <div class="flex-1">
+         <div class="text-sm text-white font-medium">
+          Proposal sent to Acme Corp
+         </div>
+         <div class="text-xs text-gray-500">
+          2 minutes ago
+         </div>
+        </div>
+       </div>
+      </div><!-- Floating orbital glow -->
+      <div class="absolute -top-4 -right-4 w-20 h-20 rounded-full opacity-40" style="background: radial-gradient(circle, rgba(6,182,212,0.4), transparent 70%); animation: glowPulse 2.5s ease-in-out infinite;"></div>
+      <div class="absolute -bottom-3 -left-3 w-16 h-16 rounded-full opacity-30" style="background: radial-gradient(circle, rgba(139,92,246,0.5), transparent 70%); animation: glowPulse 3s ease-in-out infinite 1s;"></div>
+     </div>
+    </div>
+   </section>
+   <div class="section-glow-line max-w-5xl mx-auto"></div><!-- ========== FEATURE GRID ========== -->
+   <section id="features" class="relative py-20 px-4 md:px-8" style="z-index:2;">
+    <div class="max-w-7xl mx-auto">
+     <div class="text-center mb-14 reveal-item"><span class="text-xs font-mono text-indigo-400 tracking-widest uppercase mb-3 block">Powerful Features</span>
+      <h2 class="font-outfit font-800 text-3xl md:text-4xl text-white mb-4">Everything You Need,<br><span class="gradient-text">In One Place</span></h2>
+      <p class="text-gray-500 max-w-lg mx-auto">Six intelligent modules designed to automate, organize, and supercharge your freelance workflow.</p>
+     </div>
+     <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5"><!-- Feature cards -->
+      <div class="glass-card p-6 reveal-item" style="transition-delay: 0.1s;">
+       <div class="w-12 h-12 rounded-xl flex items-center justify-center mb-4" style="background: linear-gradient(135deg, rgba(99,102,241,0.2), rgba(99,102,241,0.05)); border: 1px solid rgba(99,102,241,0.2);"><i data-lucide="users" class="w-6 h-6 text-indigo-400"></i>
+       </div>
+       <h3 class="text-white font-semibold text-lg mb-2">Client Manager</h3>
+       <p class="text-gray-500 text-sm leading-relaxed">Organize clients, track projects, and maintain relationships with an intelligent CRM built for freelancers.</p>
+      </div>
+      <div class="glass-card p-6 reveal-item" style="transition-delay: 0.2s;">
+       <div class="w-12 h-12 rounded-xl flex items-center justify-center mb-4" style="background: linear-gradient(135deg, rgba(6,182,212,0.2), rgba(6,182,212,0.05)); border: 1px solid rgba(6,182,212,0.2);"><i data-lucide="file-text" class="w-6 h-6 text-cyan-400"></i>
+       </div>
+       <h3 class="text-white font-semibold text-lg mb-2">AI Proposal Generator</h3>
+       <p class="text-gray-500 text-sm leading-relaxed">Generate professional proposals in seconds. AI crafts compelling pitches tailored to each client.</p>
+      </div>
+      <div class="glass-card p-6 reveal-item" style="transition-delay: 0.3s;">
+       <div class="w-12 h-12 rounded-xl flex items-center justify-center mb-4" style="background: linear-gradient(135deg, rgba(74,222,128,0.2), rgba(74,222,128,0.05)); border: 1px solid rgba(74,222,128,0.2);"><i data-lucide="trending-up" class="w-6 h-6 text-green-400"></i>
+       </div>
+       <h3 class="text-white font-semibold text-lg mb-2">Income Tracker</h3>
+       <p class="text-gray-500 text-sm leading-relaxed">Monitor earnings, pending payments, and revenue trends with real-time financial dashboards.</p>
+      </div>
+      <div class="glass-card p-6 reveal-item" style="transition-delay: 0.4s;">
+       <div class="w-12 h-12 rounded-xl flex items-center justify-center mb-4" style="background: linear-gradient(135deg, rgba(251,146,60,0.2), rgba(251,146,60,0.05)); border: 1px solid rgba(251,146,60,0.2);"><i data-lucide="bell" class="w-6 h-6 text-orange-400"></i>
+       </div>
+       <h3 class="text-white font-semibold text-lg mb-2">Deadline Reminder</h3>
+       <p class="text-gray-500 text-sm leading-relaxed">Never miss a deadline. Smart notifications keep you ahead of every milestone and delivery.</p>
+      </div>
+      <div class="glass-card p-6 reveal-item" style="transition-delay: 0.5s;">
+       <div class="w-12 h-12 rounded-xl flex items-center justify-center mb-4" style="background: linear-gradient(135deg, rgba(139,92,246,0.2), rgba(139,92,246,0.05)); border: 1px solid rgba(139,92,246,0.2);"><i data-lucide="cpu" class="w-6 h-6 text-purple-400"></i>
+       </div>
+       <h3 class="text-white font-semibold text-lg mb-2">AI Assistant</h3>
+       <p class="text-gray-500 text-sm leading-relaxed">Your personal AI co-pilot that answers questions, drafts emails, and automates routine tasks.</p>
+      </div>
+      <div class="glass-card p-6 reveal-item" style="transition-delay: 0.6s;">
+       <div class="w-12 h-12 rounded-xl flex items-center justify-center mb-4" style="background: linear-gradient(135deg, rgba(244,114,182,0.2), rgba(244,114,182,0.05)); border: 1px solid rgba(244,114,182,0.2);"><i data-lucide="archive" class="w-6 h-6 text-pink-400"></i>
+       </div>
+       <h3 class="text-white font-semibold text-lg mb-2">Portfolio Vault</h3>
+       <p class="text-gray-500 text-sm leading-relaxed">Showcase your best work in a stunning portfolio. Auto-organized by category and client reviews.</p>
+      </div>
+     </div>
+    </div>
+   </section>
+   <div class="section-glow-line max-w-5xl mx-auto"></div><!-- ========== CLIENT MANAGER ========== -->
+   <section id="clients" class="relative py-20 px-4 md:px-8" style="z-index:2;">
+    <div class="max-w-7xl mx-auto">
+     <div class="text-center mb-14 reveal-item"><span class="text-xs font-mono text-cyan-400 tracking-widest uppercase mb-3 block">Client Manager</span>
+      <h2 class="font-outfit font-800 text-3xl md:text-4xl text-white mb-4">Your Clients, <span class="gradient-text">One Dashboard</span></h2>
+     </div>
+     <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5"><!-- Client 1 -->
+      <div class="glass-card p-5 reveal-item">
+       <div class="flex items-center gap-3 mb-4">
+        <div class="w-11 h-11 rounded-full flex items-center justify-center font-bold text-sm" style="background: linear-gradient(135deg, #6366f1, #06b6d4);">
+         AS
+        </div>
+        <div>
+         <div class="text-white font-semibold">
+          Aarav Sharma
+         </div>
+         <div class="text-xs text-gray-500">
+          E-commerce Platform
+         </div>
+        </div>
+       </div>
+       <div class="flex justify-between items-center mb-3"><span class="text-xs text-gray-500"><i data-lucide="calendar" class="w-3 h-3 inline mr-1"></i>Dec 28, 2024</span> <span class="text-xs px-2.5 py-1 rounded-full font-medium" style="background: rgba(74,222,128,0.1); color: #4ade80; border: 1px solid rgba(74,222,128,0.2);">Paid</span>
+       </div>
+       <div class="w-full rounded-full h-2 mb-2" style="background: rgba(99,102,241,0.1);">
+        <div class="h-2 rounded-full progress-fill" style="--progress: 78%; background: linear-gradient(90deg, #6366f1, #06b6d4);"></div>
+       </div>
+       <div class="text-xs text-gray-500 text-right">
+        78% Complete
+       </div>
+      </div><!-- Client 2 -->
+      <div class="glass-card p-5 reveal-item" style="transition-delay: 0.15s;">
+       <div class="flex items-center gap-3 mb-4">
+        <div class="w-11 h-11 rounded-full flex items-center justify-center font-bold text-sm" style="background: linear-gradient(135deg, #a78bfa, #f472b6);">
+         NR
+        </div>
+        <div>
+         <div class="text-white font-semibold">
+          Neha Reddy
+         </div>
+         <div class="text-xs text-gray-500">
+          Brand Identity Design
+         </div>
+        </div>
+       </div>
+       <div class="flex justify-between items-center mb-3"><span class="text-xs text-gray-500"><i data-lucide="calendar" class="w-3 h-3 inline mr-1"></i>Jan 15, 2025</span> <span class="text-xs px-2.5 py-1 rounded-full font-medium" style="background: rgba(251,146,60,0.1); color: #fb923c; border: 1px solid rgba(251,146,60,0.2);">Pending</span>
+       </div>
+       <div class="w-full rounded-full h-2 mb-2" style="background: rgba(139,92,246,0.1);">
+        <div class="h-2 rounded-full progress-fill" style="--progress: 45%; background: linear-gradient(90deg, #a78bfa, #f472b6);"></div>
+       </div>
+       <div class="text-xs text-gray-500 text-right">
+        45% Complete
+       </div>
+      </div><!-- Client 3 -->
+      <div class="glass-card p-5 reveal-item" style="transition-delay: 0.3s;">
+       <div class="flex items-center gap-3 mb-4">
+        <div class="w-11 h-11 rounded-full flex items-center justify-center font-bold text-sm" style="background: linear-gradient(135deg, #06b6d4, #10b981);">
+         VP
+        </div>
+        <div>
+         <div class="text-white font-semibold">
+          Vikram Patel
+         </div>
+         <div class="text-xs text-gray-500">
+          SaaS Dashboard
+         </div>
+        </div>
+       </div>
+       <div class="flex justify-between items-center mb-3"><span class="text-xs text-gray-500"><i data-lucide="calendar" class="w-3 h-3 inline mr-1"></i>Feb 01, 2025</span> <span class="text-xs px-2.5 py-1 rounded-full font-medium" style="background: rgba(6,182,212,0.1); color: #22d3ee; border: 1px solid rgba(6,182,212,0.2);">In Progress</span>
+       </div>
+       <div class="w-full rounded-full h-2 mb-2" style="background: rgba(6,182,212,0.1);">
+        <div class="h-2 rounded-full progress-fill" style="--progress: 62%; background: linear-gradient(90deg, #06b6d4, #10b981);"></div>
+       </div>
+       <div class="text-xs text-gray-500 text-right">
+        62% Complete
+       </div>
+      </div>
+     </div>
+    </div>
+   </section>
+   <div class="section-glow-line max-w-5xl mx-auto"></div><!-- ========== AI PROPOSAL GENERATOR ========== -->
+   <section class="relative py-20 px-4 md:px-8" style="z-index:2;">
+    <div class="max-w-7xl mx-auto">
+     <div class="text-center mb-14 reveal-item"><span class="text-xs font-mono text-purple-400 tracking-widest uppercase mb-3 block">AI Proposal Generator</span>
+      <h2 class="font-outfit font-800 text-3xl md:text-4xl text-white mb-4">Write Proposals <span class="gradient-text">In Seconds</span></h2>
+     </div>
+     <div class="grid lg:grid-cols-2 gap-6"><!-- Input side -->
+      <div class="glass-card p-6 reveal-item">
+       <h3 class="text-white font-semibold mb-5 flex items-center gap-2"><i data-lucide="edit-3" class="w-5 h-5 text-indigo-400"></i> Project Details</h3>
+       <form id="proposalForm" class="space-y-4" onsubmit="return false;">
+        <div><label for="projType" class="text-xs text-gray-400 mb-1 block">Project Type</label> <select id="projType" class="w-full px-4 py-3 rounded-xl text-sm text-white outline-none focus:ring-2 focus:ring-indigo-500" style="background: rgba(15,20,40,0.8); border: 1px solid rgba(99,102,241,0.2);"> <option>Web Application</option> <option>Mobile App</option> <option>Brand Design</option> <option>API Development</option> <option>UI/UX Design</option> </select>
+        </div>
+        <div><label for="projBudget" class="text-xs text-gray-400 mb-1 block">Budget (₹)</label> <input id="projBudget" type="text" value="₹1,50,000" class="w-full px-4 py-3 rounded-xl text-sm text-white outline-none focus:ring-2 focus:ring-indigo-500" style="background: rgba(15,20,40,0.8); border: 1px solid rgba(99,102,241,0.2);">
+        </div>
+        <div><label for="projTimeline" class="text-xs text-gray-400 mb-1 block">Timeline</label> <select id="projTimeline" class="w-full px-4 py-3 rounded-xl text-sm text-white outline-none focus:ring-2 focus:ring-indigo-500" style="background: rgba(15,20,40,0.8); border: 1px solid rgba(99,102,241,0.2);"> <option>2 Weeks</option> <option>1 Month</option> <option>2 Months</option> <option>3+ Months</option> </select>
+        </div><button type="button" id="generateProposal" class="glow-btn w-full py-3.5 rounded-xl font-semibold text-white flex items-center justify-center gap-2" style="background: linear-gradient(135deg, #6366f1, #7c3aed);"> <i data-lucide="sparkles" class="w-5 h-5"></i> Generate Proposal </button>
+       </form>
+      </div><!-- Output side -->
+      <div class="glass-card-strong p-6 reveal-item" style="transition-delay: 0.2s;">
+       <div class="flex items-center justify-between mb-5">
+        <h3 class="text-white font-semibold flex items-center gap-2"><i data-lucide="file-check" class="w-5 h-5 text-cyan-400"></i> Generated Proposal</h3>
+        <div id="aiStatusBadge" class="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs" style="background: rgba(74,222,128,0.1); border: 1px solid rgba(74,222,128,0.2);">
+         <div class="w-1.5 h-1.5 rounded-full bg-green-400"></div><span class="text-green-400">AI Ready</span>
+        </div>
+       </div>
+       <div id="proposalOutput" class="space-y-4 font-mono text-sm" style="min-height: 220px;">
+        <div class="p-4 rounded-xl" style="background: rgba(15,20,40,0.6); border: 1px solid rgba(99,102,241,0.1);">
+         <div class="text-indigo-400 text-xs mb-2">
+          // PROPOSAL PREVIEW
+         </div>
+         <div class="text-gray-400 leading-relaxed"><span class="text-white font-semibold">Project:</span> Web Application Development<br><br><span class="text-white font-semibold">Scope:</span> Full-stack web application with responsive UI, REST API integration, authentication, and admin dashboard.<br><br><span class="text-white font-semibold">Budget:</span> <span class="text-cyan-400">₹1,50,000</span><br><span class="text-white font-semibold">Timeline:</span> <span class="text-purple-400">4 weeks</span><br><span class="text-white font-semibold">Deliverables:</span> Source code, deployment, documentation, 30-day support.
+         </div>
+        </div>
+        <div class="flex gap-3"><button class="flex-1 py-2.5 rounded-xl text-xs font-medium text-indigo-300 flex items-center justify-center gap-1.5 transition-colors hover:text-white" style="background: rgba(99,102,241,0.1); border: 1px solid rgba(99,102,241,0.2);"> <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copy </button> <button class="flex-1 py-2.5 rounded-xl text-xs font-medium text-cyan-300 flex items-center justify-center gap-1.5 transition-colors hover:text-white" style="background: rgba(6,182,212,0.1); border: 1px solid rgba(6,182,212,0.2);"> <i data-lucide="send" class="w-3.5 h-3.5"></i> Send </button>
+        </div>
+       </div>
+      </div>
+     </div>
+    </div>
+   </section>
+   <div class="section-glow-line max-w-5xl mx-auto"></div><!-- ========== INCOME TRACKER ========== -->
+   <section id="income" class="relative py-20 px-4 md:px-8" style="z-index:2;">
+    <div class="max-w-7xl mx-auto">
+     <div class="text-center mb-14 reveal-item"><span class="text-xs font-mono text-green-400 tracking-widest uppercase mb-3 block">Smart Income Tracker</span>
+      <h2 class="font-outfit font-800 text-3xl md:text-4xl text-white mb-4">Your Revenue, <span class="gradient-text">Visualized</span></h2>
+     </div>
+     <div class="grid lg:grid-cols-3 gap-5 mb-6">
+      <div class="glass-card p-5 reveal-item">
+       <div class="flex items-center justify-between mb-3"><span class="text-xs text-gray-500">Total Earnings</span>
+        <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: rgba(74,222,128,0.1);">
+         <i data-lucide="wallet" class="w-4 h-4 text-green-400"></i>
+        </div>
+       </div>
+       <div class="text-2xl font-bold text-white mb-1">
+        ₹8,45,000
+       </div>
+       <div class="text-xs text-green-400 flex items-center gap-1">
+        <i data-lucide="arrow-up-right" class="w-3 h-3"></i> +18.3% this month
+       </div>
+      </div>
+      <div class="glass-card p-5 reveal-item" style="transition-delay: 0.15s;">
+       <div class="flex items-center justify-between mb-3"><span class="text-xs text-gray-500">Pending Payments</span>
+        <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: rgba(251,146,60,0.1);">
+         <i data-lucide="clock" class="w-4 h-4 text-orange-400"></i>
+        </div>
+       </div>
+       <div class="text-2xl font-bold text-white mb-1">
+        ₹1,20,000
+       </div>
+       <div class="text-xs text-orange-400 flex items-center gap-1">
+        <i data-lucide="alert-circle" class="w-3 h-3"></i> 3 invoices pending
+       </div>
+      </div>
+      <div class="glass-card p-5 reveal-item" style="transition-delay: 0.3s;">
+       <div class="flex items-center justify-between mb-3"><span class="text-xs text-gray-500">Active Projects</span>
+        <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: rgba(99,102,241,0.1);">
+         <i data-lucide="briefcase" class="w-4 h-4 text-indigo-400"></i>
+        </div>
+       </div>
+       <div class="text-2xl font-bold text-white mb-1">
+        7
+       </div>
+       <div class="text-xs text-indigo-400 flex items-center gap-1">
+        <i data-lucide="activity" class="w-3 h-3"></i> ₹3,80,000 in pipeline
+       </div>
+      </div>
+     </div><!-- Monthly Chart -->
+     <div class="glass-card p-6 reveal-item">
+      <div class="flex items-center justify-between mb-6">
+       <h3 class="text-white font-semibold">Monthly Earnings</h3>
+       <div class="flex gap-2"><span class="text-xs px-3 py-1 rounded-full" style="background: rgba(99,102,241,0.15); color: #818cf8;">2024</span>
+       </div>
+      </div>
+      <div class="flex items-end gap-2 md:gap-3" style="height: 160px;">
+       <div class="flex-1 flex flex-col items-center gap-1">
+        <div class="w-full rounded-t-lg" style="height:35%; background: linear-gradient(to top, rgba(99,102,241,0.3), rgba(99,102,241,0.7));"></div><span class="text-xs text-gray-600">Jan</span>
+       </div>
+       <div class="flex-1 flex flex-col items-center gap-1">
+        <div class="w-full rounded-t-lg" style="height:50%; background: linear-gradient(to top, rgba(99,102,241,0.3), rgba(99,102,241,0.7));"></div><span class="text-xs text-gray-600">Feb</span>
+       </div>
+       <div class="flex-1 flex flex-col items-center gap-1">
+        <div class="w-full rounded-t-lg" style="height:42%; background: linear-gradient(to top, rgba(99,102,241,0.3), rgba(99,102,241,0.7));"></div><span class="text-xs text-gray-600">Mar</span>
+       </div>
+       <div class="flex-1 flex flex-col items-center gap-1">
+        <div class="w-full rounded-t-lg" style="height:65%; background: linear-gradient(to top, rgba(99,102,241,0.3), rgba(99,102,241,0.7));"></div><span class="text-xs text-gray-600">Apr</span>
+       </div>
+       <div class="flex-1 flex flex-col items-center gap-1">
+        <div class="w-full rounded-t-lg" style="height:58%; background: linear-gradient(to top, rgba(99,102,241,0.3), rgba(99,102,241,0.7));"></div><span class="text-xs text-gray-600">May</span>
+       </div>
+       <div class="flex-1 flex flex-col items-center gap-1">
+        <div class="w-full rounded-t-lg" style="height:75%; background: linear-gradient(to top, rgba(99,102,241,0.3), rgba(99,102,241,0.7));"></div><span class="text-xs text-gray-600">Jun</span>
+       </div>
+       <div class="flex-1 flex flex-col items-center gap-1">
+        <div class="w-full rounded-t-lg" style="height:60%; background: linear-gradient(to top, rgba(6,182,212,0.3), rgba(6,182,212,0.7));"></div><span class="text-xs text-gray-600">Jul</span>
+       </div>
+       <div class="flex-1 flex flex-col items-center gap-1">
+        <div class="w-full rounded-t-lg" style="height:82%; background: linear-gradient(to top, rgba(6,182,212,0.3), rgba(6,182,212,0.7));"></div><span class="text-xs text-gray-600">Aug</span>
+       </div>
+       <div class="flex-1 flex flex-col items-center gap-1">
+        <div class="w-full rounded-t-lg" style="height:70%; background: linear-gradient(to top, rgba(139,92,246,0.3), rgba(139,92,246,0.7));"></div><span class="text-xs text-gray-600">Sep</span>
+       </div>
+       <div class="flex-1 flex flex-col items-center gap-1">
+        <div class="w-full rounded-t-lg" style="height:88%; background: linear-gradient(to top, rgba(139,92,246,0.3), rgba(139,92,246,0.7));"></div><span class="text-xs text-gray-600">Oct</span>
+       </div>
+       <div class="flex-1 flex flex-col items-center gap-1">
+        <div class="w-full rounded-t-lg" style="height:95%; background: linear-gradient(to top, rgba(139,92,246,0.4), rgba(139,92,246,0.9));"></div><span class="text-xs text-gray-600">Nov</span>
+       </div>
+       <div class="flex-1 flex flex-col items-center gap-1">
+        <div class="w-full rounded-t-lg relative" style="height:100%; background: linear-gradient(to top, #6366f1, #06b6d4); box-shadow: 0 0 20px rgba(99,102,241,0.4);">
+         <div class="absolute -top-6 left-1/2 -translate-x-1/2 text-xs text-cyan-400 font-bold whitespace-nowrap">
+          ₹1.2L
+         </div>
+        </div><span class="text-xs text-white font-medium">Dec</span>
+       </div>
+      </div>
+     </div>
+    </div>
+   </section>
+   <div class="section-glow-line max-w-5xl mx-auto"></div><!-- ========== DEADLINE CALENDAR ========== -->
+   <section class="relative py-20 px-4 md:px-8" style="z-index:2;">
+    <div class="max-w-7xl mx-auto">
+     <div class="text-center mb-14 reveal-item"><span class="text-xs font-mono text-orange-400 tracking-widest uppercase mb-3 block">Deadline Calendar</span>
+      <h2 class="font-outfit font-800 text-3xl md:text-4xl text-white mb-4">Never Miss <span class="gradient-text">A Deadline</span></h2>
+     </div>
+     <div class="grid lg:grid-cols-2 gap-6"><!-- Calendar visual -->
+      <div class="glass-card p-6 reveal-item">
+       <div class="flex items-center justify-between mb-5">
+        <h3 class="text-white font-semibold">January 2025</h3>
+        <div class="flex gap-2"><button class="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-white transition" style="background: rgba(99,102,241,0.1);"><i data-lucide="chevron-left" class="w-4 h-4"></i></button> <button class="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-white transition" style="background: rgba(99,102,241,0.1);"><i data-lucide="chevron-right" class="w-4 h-4"></i></button>
+        </div>
+       </div>
+       <div class="grid grid-cols-7 gap-1 text-center text-xs mb-2"><span class="text-gray-600 py-2">Sun</span><span class="text-gray-600 py-2">Mon</span><span class="text-gray-600 py-2">Tue</span><span class="text-gray-600 py-2">Wed</span><span class="text-gray-600 py-2">Thu</span><span class="text-gray-600 py-2">Fri</span><span class="text-gray-600 py-2">Sat</span>
+       </div>
+       <div class="grid grid-cols-7 gap-1 text-center text-sm"><span class="py-2 text-gray-700"></span><span class="py-2 text-gray-700"></span><span class="py-2 text-gray-700"></span> <span class="py-2 text-gray-400 rounded-lg hover:bg-white/5 cursor-pointer">1</span> <span class="py-2 text-gray-400 rounded-lg hover:bg-white/5 cursor-pointer">2</span> <span class="py-2 text-gray-400 rounded-lg hover:bg-white/5 cursor-pointer">3</span> <span class="py-2 text-gray-400 rounded-lg hover:bg-white/5 cursor-pointer">4</span> <span class="py-2 text-gray-400 rounded-lg hover:bg-white/5 cursor-pointer">5</span> <span class="py-2 text-gray-400 rounded-lg hover:bg-white/5 cursor-pointer">6</span> <span class="py-2 text-white rounded-lg cursor-pointer" style="background: linear-gradient(135deg, #6366f1, #7c3aed); box-shadow: 0 0 12px rgba(99,102,241,0.4);">7</span> <span class="py-2 text-gray-400 rounded-lg hover:bg-white/5 cursor-pointer">8</span> <span class="py-2 text-gray-400 rounded-lg hover:bg-white/5 cursor-pointer">9</span> <span class="py-2 text-gray-400 rounded-lg hover:bg-white/5 cursor-pointer">10</span> <span class="py-2 text-gray-400 rounded-lg hover:bg-white/5 cursor-pointer">11</span> <span class="py-2 text-gray-400 rounded-lg hover:bg-white/5 cursor-pointer relative">12 <span class="absolute top-0.5 right-0.5 w-1.5 h-1.5 rounded-full bg-orange-400"></span> </span> <span class="py-2 text-gray-400 rounded-lg hover:bg-white/5 cursor-pointer">13</span> <span class="py-2 text-gray-400 rounded-lg hover:bg-white/5 cursor-pointer">14</span> <span class="py-2 text-white rounded-lg cursor-pointer relative" style="background: rgba(6,182,212,0.2); border: 1px solid rgba(6,182,212,0.3);">15 <span class="absolute top-0.5 right-0.5 w-1.5 h-1.5 rounded-full bg-cyan-400"></span> </span> <span class="py-2 text-gray-400 rounded-lg hover:bg-white/5 cursor-pointer">16</span> <span class="py-2 text-gray-400 rounded-lg hover:bg-white/5 cursor-pointer">17</span> <span class="py-2 text-gray-400 rounded-lg hover:bg-white/5 cursor-pointer">18</span> <span class="py-2 text-gray-400 rounded-lg hover:bg-white/5 cursor-pointer">19</span> <span class="py-2 text-gray-400 rounded-lg hover:bg-white/5 cursor-pointer relative">20 <span class="absolute top-0.5 right-0.5 w-1.5 h-1.5 rounded-full bg-purple-400"></span> </span> <span class="py-2 text-gray-400 rounded-lg hover:bg-white/5 cursor-pointer">21</span> <span class="py-2 text-gray-400 rounded-lg hover:bg-white/5 cursor-pointer">22</span> <span class="py-2 text-gray-400 rounded-lg hover:bg-white/5 cursor-pointer">23</span> <span class="py-2 text-gray-400 rounded-lg hover:bg-white/5 cursor-pointer">24</span> <span class="py-2 text-gray-400 rounded-lg hover:bg-white/5 cursor-pointer">25</span> <span class="py-2 text-gray-400 rounded-lg hover:bg-white/5 cursor-pointer relative">26 <span class="absolute top-0.5 right-0.5 w-1.5 h-1.5 rounded-full bg-red-400"></span> </span> <span class="py-2 text-gray-400 rounded-lg hover:bg-white/5 cursor-pointer">27</span> <span class="py-2 text-gray-400 rounded-lg hover:bg-white/5 cursor-pointer">28</span> <span class="py-2 text-gray-400 rounded-lg hover:bg-white/5 cursor-pointer">29</span> <span class="py-2 text-gray-400 rounded-lg hover:bg-white/5 cursor-pointer">30</span> <span class="py-2 text-gray-400 rounded-lg hover:bg-white/5 cursor-pointer">31</span>
+       </div>
+      </div><!-- Tasks -->
+      <div class="space-y-4 reveal-item" style="transition-delay: 0.2s;">
+       <div class="glass-card p-4 flex items-center gap-4">
+        <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style="background: linear-gradient(135deg, rgba(6,182,212,0.2), rgba(6,182,212,0.05)); border: 1px solid rgba(6,182,212,0.2);"><i data-lucide="layout" class="w-5 h-5 text-cyan-400"></i>
+        </div>
+        <div class="flex-1 min-w-0">
+         <div class="text-white font-medium text-sm">
+          Brand Identity Delivery
+         </div>
+         <div class="text-xs text-gray-500">
+          Neha Reddy • Jan 15
+         </div>
+        </div><span class="text-xs px-2 py-1 rounded-full flex-shrink-0" style="background: rgba(6,182,212,0.1); color: #22d3ee; border: 1px solid rgba(6,182,212,0.2);">8 days</span>
+       </div>
+       <div class="glass-card p-4 flex items-center gap-4">
+        <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style="background: linear-gradient(135deg, rgba(139,92,246,0.2), rgba(139,92,246,0.05)); border: 1px solid rgba(139,92,246,0.2);"><i data-lucide="code" class="w-5 h-5 text-purple-400"></i>
+        </div>
+        <div class="flex-1 min-w-0">
+         <div class="text-white font-medium text-sm">
+          API Integration Phase
+         </div>
+         <div class="text-xs text-gray-500">
+          Vikram Patel • Jan 20
+         </div>
+        </div><span class="text-xs px-2 py-1 rounded-full flex-shrink-0" style="background: rgba(139,92,246,0.1); color: #a78bfa; border: 1px solid rgba(139,92,246,0.2);">13 days</span>
+       </div>
+       <div class="glass-card p-4 flex items-center gap-4">
+        <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style="background: linear-gradient(135deg, rgba(251,146,60,0.2), rgba(251,146,60,0.05)); border: 1px solid rgba(251,146,60,0.2);"><i data-lucide="monitor" class="w-5 h-5 text-orange-400"></i>
+        </div>
+        <div class="flex-1 min-w-0">
+         <div class="text-white font-medium text-sm">
+          Dashboard Prototype Review
+         </div>
+         <div class="text-xs text-gray-500">
+          Aarav Sharma • Jan 12
+         </div>
+        </div><span class="text-xs px-2 py-1 rounded-full flex-shrink-0" style="background: rgba(251,146,60,0.1); color: #fb923c; border: 1px solid rgba(251,146,60,0.2);">5 days</span>
+       </div>
+       <div class="glass-card p-4 flex items-center gap-4">
+        <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style="background: linear-gradient(135deg, rgba(239,68,68,0.2), rgba(239,68,68,0.05)); border: 1px solid rgba(239,68,68,0.2);"><i data-lucide="file-check" class="w-5 h-5 text-red-400"></i>
+        </div>
+        <div class="flex-1 min-w-0">
+         <div class="text-white font-medium text-sm">
+          Final Invoice Submission
+         </div>
+         <div class="text-xs text-gray-500">
+          Project Alpha • Jan 26
+         </div>
+        </div><span class="text-xs px-2 py-1 rounded-full flex-shrink-0" style="background: rgba(239,68,68,0.1); color: #f87171; border: 1px solid rgba(239,68,68,0.2);">19 days</span>
+       </div>
+      </div>
+     </div>
+    </div>
+   </section>
+   <div class="section-glow-line max-w-5xl mx-auto"></div><!-- ========== AI CHAT ASSISTANT ========== -->
+   <section class="relative py-20 px-4 md:px-8" style="z-index:2;">
+    <div class="max-w-7xl mx-auto">
+     <div class="text-center mb-14 reveal-item"><span class="text-xs font-mono text-indigo-400 tracking-widest uppercase mb-3 block">AI Assistant</span>
+      <h2 class="font-outfit font-800 text-3xl md:text-4xl text-white mb-4">Your Intelligent <span class="gradient-text">Co-Pilot</span></h2>
+     </div>
+     <div class="max-w-2xl mx-auto">
+      <div class="glass-card-strong p-5 md:p-6 reveal-item"><!-- Chat header -->
+       <div class="flex items-center gap-3 mb-5 pb-4" style="border-bottom: 1px solid rgba(99,102,241,0.1);">
+        <div class="w-10 h-10 rounded-full flex items-center justify-center relative" style="background: linear-gradient(135deg, #6366f1, #06b6d4);"><i data-lucide="bot" class="w-5 h-5 text-white"></i>
+         <div class="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-green-400 border-2" style="border-color: #0f1428;"></div>
+        </div>
+        <div>
+         <div class="text-white font-semibold text-sm">
+          Freelancer AI
+         </div>
+         <div class="text-xs text-green-400">
+          Online • Ready to help
+         </div>
+        </div>
+       </div><!-- Messages -->
+       <div id="chatMessages" class="space-y-4 mb-5" style="max-height: 300px; overflow-y: auto;">
+        <div class="flex gap-3 chat-bubble-anim">
+         <div class="w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center" style="background: linear-gradient(135deg, #6366f1, #06b6d4);"><i data-lucide="bot" class="w-3.5 h-3.5 text-white"></i>
+         </div>
+         <div class="px-4 py-3 rounded-2xl rounded-tl-sm max-w-xs text-sm" style="background: rgba(99,102,241,0.1); border: 1px solid rgba(99,102,241,0.15);"><span class="text-gray-300">Hello! I'm your AI assistant. How can I help you today? 🚀</span>
+         </div>
+        </div>
+        <div class="flex gap-3 justify-end chat-bubble-anim" style="animation-delay: 0.3s;">
+         <div class="px-4 py-3 rounded-2xl rounded-tr-sm max-w-xs text-sm" style="background: linear-gradient(135deg, #6366f1, #7c3aed);"><span class="text-white">Draft a follow-up email for pending invoice to Neha Reddy</span>
+         </div>
+        </div>
+        <div class="flex gap-3 chat-bubble-anim" style="animation-delay: 0.6s;">
+         <div class="w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center" style="background: linear-gradient(135deg, #6366f1, #06b6d4);"><i data-lucide="bot" class="w-3.5 h-3.5 text-white"></i>
+         </div>
+         <div class="px-4 py-3 rounded-2xl rounded-tl-sm max-w-xs text-sm" style="background: rgba(99,102,241,0.1); border: 1px solid rgba(99,102,241,0.15);"><span class="text-gray-300">Here's a professional follow-up email:</span><br><br><span class="text-indigo-300 font-mono text-xs">"Hi Neha, I hope you're doing well. I wanted to follow up on invoice #1042 (₹75,000) sent on Dec 20. Please let me know if you need any details. Looking forward to hearing from you!"</span>
+         </div>
+        </div>
+       </div><!-- Input -->
+       <div class="flex gap-2"><input id="chatInput" type="text" placeholder="Ask anything..." class="flex-1 px-4 py-3 rounded-xl text-sm text-white outline-none focus:ring-2 focus:ring-indigo-500" style="background: rgba(15,20,40,0.8); border: 1px solid rgba(99,102,241,0.2);"> <button id="chatSend" class="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 transition-all hover:scale-105" style="background: linear-gradient(135deg, #6366f1, #06b6d4); box-shadow: 0 0 15px rgba(99,102,241,0.3);"> <i data-lucide="send" class="w-5 h-5 text-white"></i> </button>
+       </div>
+      </div>
+     </div>
+    </div>
+   </section>
+   <div class="section-glow-line max-w-5xl mx-auto"></div><!-- ========== PORTFOLIO VAULT ========== -->
+   <section id="portfolio" class="relative py-20 px-4 md:px-8" style="z-index:2;">
+    <div class="max-w-7xl mx-auto">
+     <div class="text-center mb-14 reveal-item"><span class="text-xs font-mono text-pink-400 tracking-widest uppercase mb-3 block">Portfolio Vault</span>
+      <h2 class="font-outfit font-800 text-3xl md:text-4xl text-white mb-4">Showcase Your <span class="gradient-text">Best Work</span></h2>
+     </div>
+     <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+      <div class="glass-card overflow-hidden reveal-item group">
+       <div class="h-40 relative" style="background: linear-gradient(135deg, #1e1b4b, #312e81);">
+        <div class="absolute inset-0 flex items-center justify-center"><i data-lucide="globe" class="w-16 h-16 text-indigo-400 opacity-30 group-hover:opacity-60 transition-opacity"></i>
+        </div>
+        <div class="absolute top-3 right-3 px-2 py-0.5 rounded-md text-xs font-mono" style="background: rgba(0,0,0,0.5); color: #818cf8;">
+         Web App
+        </div>
+       </div>
+       <div class="p-5">
+        <h4 class="text-white font-semibold mb-1">E-commerce Platform</h4>
+        <p class="text-gray-500 text-xs mb-3">Full-stack marketplace with payment integration</p>
+        <div class="flex items-center gap-1"><i data-lucide="star" class="w-3.5 h-3.5 text-yellow-400 fill-yellow-400"></i> <i data-lucide="star" class="w-3.5 h-3.5 text-yellow-400 fill-yellow-400"></i> <i data-lucide="star" class="w-3.5 h-3.5 text-yellow-400 fill-yellow-400"></i> <i data-lucide="star" class="w-3.5 h-3.5 text-yellow-400 fill-yellow-400"></i> <i data-lucide="star" class="w-3.5 h-3.5 text-yellow-400 fill-yellow-400"></i> <span class="text-xs text-gray-500 ml-1">5.0</span>
+        </div>
+       </div>
+      </div>
+      <div class="glass-card overflow-hidden reveal-item group" style="transition-delay: 0.15s;">
+       <div class="h-40 relative" style="background: linear-gradient(135deg, #1a1a2e, #16213e);">
+        <div class="absolute inset-0 flex items-center justify-center"><i data-lucide="smartphone" class="w-16 h-16 text-cyan-400 opacity-30 group-hover:opacity-60 transition-opacity"></i>
+        </div>
+        <div class="absolute top-3 right-3 px-2 py-0.5 rounded-md text-xs font-mono" style="background: rgba(0,0,0,0.5); color: #22d3ee;">
+         Mobile
+        </div>
+       </div>
+       <div class="p-5">
+        <h4 class="text-white font-semibold mb-1">Fitness Tracker App</h4>
+        <p class="text-gray-500 text-xs mb-3">Cross-platform health &amp; workout application</p>
+        <div class="flex items-center gap-1"><i data-lucide="star" class="w-3.5 h-3.5 text-yellow-400 fill-yellow-400"></i> <i data-lucide="star" class="w-3.5 h-3.5 text-yellow-400 fill-yellow-400"></i> <i data-lucide="star" class="w-3.5 h-3.5 text-yellow-400 fill-yellow-400"></i> <i data-lucide="star" class="w-3.5 h-3.5 text-yellow-400 fill-yellow-400"></i> <i data-lucide="star" class="w-3.5 h-3.5 text-gray-600"></i> <span class="text-xs text-gray-500 ml-1">4.8</span>
+        </div>
+       </div>
+      </div>
+      <div class="glass-card overflow-hidden reveal-item group" style="transition-delay: 0.3s;">
+       <div class="h-40 relative" style="background: linear-gradient(135deg, #2d1b4e, #1a1333);">
+        <div class="absolute inset-0 flex items-center justify-center"><i data-lucide="palette" class="w-16 h-16 text-purple-400 opacity-30 group-hover:opacity-60 transition-opacity"></i>
+        </div>
+        <div class="absolute top-3 right-3 px-2 py-0.5 rounded-md text-xs font-mono" style="background: rgba(0,0,0,0.5); color: #a78bfa;">
+         Design
+        </div>
+       </div>
+       <div class="p-5">
+        <h4 class="text-white font-semibold mb-1">SaaS Dashboard UI</h4>
+        <p class="text-gray-500 text-xs mb-3">Analytics dashboard with data visualization</p>
+        <div class="flex items-center gap-1"><i data-lucide="star" class="w-3.5 h-3.5 text-yellow-400 fill-yellow-400"></i> <i data-lucide="star" class="w-3.5 h-3.5 text-yellow-400 fill-yellow-400"></i> <i data-lucide="star" class="w-3.5 h-3.5 text-yellow-400 fill-yellow-400"></i> <i data-lucide="star" class="w-3.5 h-3.5 text-yellow-400 fill-yellow-400"></i> <i data-lucide="star" class="w-3.5 h-3.5 text-yellow-400 fill-yellow-400"></i> <span class="text-xs text-gray-500 ml-1">5.0</span>
+        </div>
+       </div>
+      </div>
+     </div>
+    </div>
+   </section>
+   <div class="section-glow-line max-w-5xl mx-auto"></div><!-- ========== TESTIMONIALS ========== -->
+   <section class="relative py-20 px-4 md:px-8" style="z-index:2;">
+    <div class="max-w-7xl mx-auto">
+     <div class="text-center mb-14 reveal-item"><span class="text-xs font-mono text-cyan-400 tracking-widest uppercase mb-3 block">Testimonials</span>
+      <h2 class="font-outfit font-800 text-3xl md:text-4xl text-white mb-4">Loved By <span class="gradient-text">Freelancers</span></h2>
+     </div>
+     <div class="grid md:grid-cols-3 gap-5">
+      <div class="glass-card p-6 reveal-item">
+       <div class="flex items-center gap-1 mb-4"><i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i> <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i> <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i> <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i> <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+       </div>
+       <p class="text-gray-400 text-sm leading-relaxed mb-5">"This command center transformed my workflow. I went from scattered tools to one unified dashboard. My income grew 40% in 3 months."</p>
+       <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-xs" style="background: linear-gradient(135deg, #6366f1, #06b6d4);">
+         PK
+        </div>
+        <div>
+         <div class="text-white font-medium text-sm">
+          Priya Kapoor
+         </div>
+         <div class="text-xs text-gray-500">
+          UI/UX Designer
+         </div>
+        </div>
+       </div>
+      </div>
+      <div class="glass-card p-6 reveal-item" style="transition-delay: 0.15s;">
+       <div class="flex items-center gap-1 mb-4"><i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i> <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i> <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i> <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i> <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+       </div>
+       <p class="text-gray-400 text-sm leading-relaxed mb-5">"The AI proposal generator alone saved me 10+ hours per week. Clients are impressed by how fast and professional my proposals are."</p>
+       <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-xs" style="background: linear-gradient(135deg, #a78bfa, #f472b6);">
+         RJ
+        </div>
+        <div>
+         <div class="text-white font-medium text-sm">
+          Rahul Joshi
+         </div>
+         <div class="text-xs text-gray-500">
+          Full-Stack Developer
+         </div>
+        </div>
+       </div>
+      </div>
+      <div class="glass-card p-6 reveal-item" style="transition-delay: 0.3s;">
+       <div class="flex items-center gap-1 mb-4"><i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i> <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i> <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i> <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i> <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+       </div>
+       <p class="text-gray-400 text-sm leading-relaxed mb-5">"Finally, a tool that understands freelancers. The income tracker and deadline system keep me organized and my clients happy."</p>
+       <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-xs" style="background: linear-gradient(135deg, #06b6d4, #10b981);">
+         AM
+        </div>
+        <div>
+         <div class="text-white font-medium text-sm">
+          Ananya Mehta
+         </div>
+         <div class="text-xs text-gray-500">
+          Content Creator
+         </div>
+        </div>
+       </div>
+      </div>
+     </div>
+    </div>
+   </section>
+   <div class="section-glow-line max-w-5xl mx-auto"></div><!-- ========== FINAL CTA ========== -->
+   <section class="relative py-24 px-4 md:px-8" style="z-index:2;">
+    <div class="max-w-3xl mx-auto text-center reveal-item">
+     <div class="glass-card-strong p-10 md:p-14 relative overflow-hidden"><!-- Background glow -->
+      <div class="absolute top-0 left-1/2 -translate-x-1/2 w-80 h-40 rounded-full opacity-20" style="background: radial-gradient(circle, rgba(99,102,241,0.5), transparent 70%);"></div>
+      <h2 id="ctaHeadline" class="font-outfit font-900 text-3xl md:text-4xl text-white mb-5 relative">Upgrade Freelancing Into a<br><span class="gradient-text">Smart System</span></h2>
+      <p class="text-gray-400 mb-8 max-w-md mx-auto relative">Join 12,000+ freelancers who have automated their business with the AI Command Center.</p><button id="ctaButton" class="glow-btn px-10 py-4 rounded-xl font-bold text-white text-lg relative flex items-center gap-3 mx-auto" style="background: linear-gradient(135deg, #6366f1, #7c3aed);"> <i data-lucide="rocket" class="w-5 h-5"></i> <span id="ctaButtonText">Start Building</span> </button>
+     </div>
+    </div>
+   </section><!-- ========== FOOTER ========== -->
+   <footer id="contact" class="relative py-12 px-4 md:px-8" style="z-index:2; border-top: 1px solid rgba(99,102,241,0.1);">
+    <div class="max-w-7xl mx-auto">
+     <div class="grid md:grid-cols-4 gap-8 mb-10">
+      <div>
+       <div class="flex items-center gap-3 mb-4">
+        <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background: linear-gradient(135deg, #6366f1, #06b6d4);"><i data-lucide="zap" class="w-5 h-5 text-white"></i>
+        </div><span class="font-outfit font-bold text-lg text-white">Freelancer AI</span>
+       </div>
+       <p class="text-gray-500 text-sm leading-relaxed">The intelligent command center for modern freelancers, developers, and creators.</p>
+      </div>
+      <div>
+       <h4 class="text-white font-semibold mb-4 text-sm">Product</h4>
+       <div class="space-y-2"><a href="#features" class="block text-gray-500 text-sm hover:text-indigo-400 transition-colors">Features</a> <a href="#income" class="block text-gray-500 text-sm hover:text-indigo-400 transition-colors">Income Tracker</a> <a href="#portfolio" class="block text-gray-500 text-sm hover:text-indigo-400 transition-colors">Portfolio</a> <a href="#" class="block text-gray-500 text-sm hover:text-indigo-400 transition-colors">Pricing</a>
+       </div>
+      </div>
+      <div>
+       <h4 class="text-white font-semibold mb-4 text-sm">Connect</h4>
+       <div class="space-y-2"><a href="https://github.com/psinghdhruvendra-arch" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 text-gray-500 text-sm hover:text-indigo-400 transition-colors"> <i data-lucide="github" class="w-4 h-4"></i> GitHub </a> <a href="mailto:psinghdhruvandra@gmail.com" class="flex items-center gap-2 text-gray-500 text-sm hover:text-indigo-400 transition-colors"> <i data-lucide="mail" class="w-4 h-4"></i> psinghdhruvandra@gmail.com </a> <a href="tel:08840225959" class="flex items-center gap-2 text-gray-500 text-sm hover:text-indigo-400 transition-colors"> <i data-lucide="phone" class="w-4 h-4"></i> 08840225959 </a>
+       </div>
+      </div>
+      <div>
+       <h4 class="text-white font-semibold mb-4 text-sm">Stay Updated</h4>
+       <form onsubmit="event.preventDefault(); this.querySelector('input').value=''; showInlineToast('Subscribed! 🎉');" class="flex gap-2"><label for="emailInput" class="sr-only">Email</label> <input id="emailInput" type="email" placeholder="Enter email" class="flex-1 px-3 py-2.5 rounded-lg text-sm text-white outline-none" style="background: rgba(15,20,40,0.8); border: 1px solid rgba(99,102,241,0.2);"> <button type="submit" class="px-4 py-2.5 rounded-lg text-sm font-medium text-white" style="background: linear-gradient(135deg, #6366f1, #7c3aed);"> <i data-lucide="arrow-right" class="w-4 h-4"></i> </button>
+       </form>
+      </div>
+     </div>
+     <div class="section-glow-line mb-6"></div>
+     <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+      <p class="text-gray-600 text-xs">© 2025 Freelancer AI Command Center. All rights reserved.</p>
+      <div class="flex gap-4"><a href="https://github.com/psinghdhruvendra-arch" target="_blank" rel="noopener noreferrer" class="w-8 h-8 rounded-lg flex items-center justify-center text-gray-500 hover:text-white transition" style="background: rgba(99,102,241,0.1);"> <i data-lucide="github" class="w-4 h-4"></i> </a> <a href="mailto:psinghdhruvandra@gmail.com" class="w-8 h-8 rounded-lg flex items-center justify-center text-gray-500 hover:text-white transition" style="background: rgba(99,102,241,0.1);"> <i data-lucide="mail" class="w-4 h-4"></i> </a> <a href="tel:08840225959" class="w-8 h-8 rounded-lg flex items-center justify-center text-gray-500 hover:text-white transition" style="background: rgba(99,102,241,0.1);"> <i data-lucide="phone" class="w-4 h-4"></i> </a>
+      </div>
+     </div>
+    </div>
+   </footer><!-- Inline Toast -->
+   <div id="inlineToast" class="fixed bottom-6 right-6 px-5 py-3 rounded-xl text-sm font-medium text-white z-50 transition-all" style="background: linear-gradient(135deg, #6366f1, #06b6d4); box-shadow: 0 0 20px rgba(99,102,241,0.4); opacity: 0; transform: translateY(20px); pointer-events: none;"></div>
+  </div><!-- end app-wrapper -->
+  <script>
+// ===== Default Config =====
+const defaultConfig = {
+  hero_headline: 'Your Freelance Business, Controlled by Intelligence.',
+  hero_subheading: 'Manage clients, proposals, payments, deadlines, and productivity using one intelligent dashboard.',
+  cta_headline: 'Upgrade Freelancing Into a Smart System',
+  cta_button_text: 'Start Building',
+  background_color: '#05070f',
+  surface_color: '#0f1428',
+  text_color: '#e2e8f0',
+  primary_action_color: '#6366f1',
+  secondary_action_color: '#06b6d4',
+  font_family: 'Outfit',
+  font_size: 16
+};
+
+// ===== Element SDK =====
+window.elementSdk.init({
+  defaultConfig,
+  onConfigChange: async (config) => {
+    const c = { ...defaultConfig, ...config };
+    const font = c.font_family || defaultConfig.font_family;
+    const baseSize = c.font_size || defaultConfig.font_size;
+    const fontStack = `${font}, sans-serif`;
+
+    // Background
+    document.body.style.background = c.background_color;
+
+    // Font
+    document.body.style.fontFamily = fontStack;
+
+    // Text content
+    const heroEl = document.getElementById('heroHeadline');
+    if (heroEl) {
+      const parts = (c.hero_headline || defaultConfig.hero_headline).split(',');
+      heroEl.innerHTML = `<span class="text-white">${parts[0]}${parts.length > 1 ? ',' : ''}</span><br><span class="gradient-text">${parts.slice(1).join(',') || ''}</span>`;
+      heroEl.style.fontSize = `${baseSize * 3}px`;
+      heroEl.style.fontFamily = fontStack;
+      heroEl.style.color = c.text_color;
+    }
+
+    const subEl = document.getElementById('heroSubheading');
+    if (subEl) {
+      subEl.textContent = c.hero_subheading || defaultConfig.hero_subheading;
+      subEl.style.fontSize = `${baseSize * 1.15}px`;
+    }
+
+    const ctaH = document.getElementById('ctaHeadline');
+    if (ctaH) {
+      const text = c.cta_headline || defaultConfig.cta_headline;
+      ctaH.innerHTML = text.replace(/(Smart System|Intelligence|Smart|System)/gi, '<span class="gradient-text">$1</span>');
+      ctaH.style.fontFamily = fontStack;
+    }
+
+    const ctaBtnText = document.getElementById('ctaButtonText');
+    if (ctaBtnText) ctaBtnText.textContent = c.cta_button_text || defaultConfig.cta_button_text;
+
+    // Colors on key elements
+    document.querySelectorAll('.glow-btn').forEach(btn => {
+      btn.style.background = `linear-gradient(135deg, ${c.primary_action_color}, ${c.secondary_action_color})`;
+    });
+
+    document.querySelectorAll('.glass-card, .glass-card-strong').forEach(card => {
+      card.style.borderColor = `${c.primary_action_color}22`;
+    });
+
+    // All headings font
+    document.querySelectorAll('h1,h2,h3,h4').forEach(h => {
+      h.style.fontFamily = fontStack;
+    });
+
+    // Body text size
+    document.querySelectorAll('p').forEach(p => {
+      p.style.fontSize = `${baseSize}px`;
+    });
+  },
+  mapToCapabilities: (config) => {
+    const c = { ...defaultConfig, ...config };
+    return {
+      recolorables: [
+        { get: () => c.background_color || defaultConfig.background_color, set: (v) => { c.background_color = v; window.elementSdk.setConfig({ background_color: v }); } },
+        { get: () => c.surface_color || defaultConfig.surface_color, set: (v) => { c.surface_color = v; window.elementSdk.setConfig({ surface_color: v }); } },
+        { get: () => c.text_color || defaultConfig.text_color, set: (v) => { c.text_color = v; window.elementSdk.setConfig({ text_color: v }); } },
+        { get: () => c.primary_action_color || defaultConfig.primary_action_color, set: (v) => { c.primary_action_color = v; window.elementSdk.setConfig({ primary_action_color: v }); } },
+        { get: () => c.secondary_action_color || defaultConfig.secondary_action_color, set: (v) => { c.secondary_action_color = v; window.elementSdk.setConfig({ secondary_action_color: v }); } }
+      ],
+      borderables: [],
+      fontEditable: {
+        get: () => c.font_family || defaultConfig.font_family,
+        set: (v) => { c.font_family = v; window.elementSdk.setConfig({ font_family: v }); }
+      },
+      fontSizeable: {
+        get: () => c.font_size || defaultConfig.font_size,
+        set: (v) => { c.font_size = v; window.elementSdk.setConfig({ font_size: v }); }
+      }
+    };
+  },
+  mapToEditPanelValues: (config) => {
+    const c = { ...defaultConfig, ...config };
+    return new Map([
+      ['hero_headline', c.hero_headline || defaultConfig.hero_headline],
+      ['hero_subheading', c.hero_subheading || defaultConfig.hero_subheading],
+      ['cta_headline', c.cta_headline || defaultConfig.cta_headline],
+      ['cta_button_text', c.cta_button_text || defaultConfig.cta_button_text]
+    ]);
+  }
+});
+
+// ===== Particles =====
+function createParticles() {
+  const container = document.getElementById('particles');
+  if (!container) return;
+  const colors = ['#6366f1', '#06b6d4', '#a78bfa', '#818cf8'];
+  for (let i = 0; i < 30; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.cssText = `
+      left: ${Math.random() * 100}%;
+      top: ${Math.random() * 100}%;
+      background: ${colors[Math.floor(Math.random() * colors.length)]};
+      opacity: ${0.2 + Math.random() * 0.4};
+      animation: particleFloat ${6 + Math.random() * 10}s linear infinite;
+      animation-delay: ${Math.random() * 8}s;
+    `;
+    container.appendChild(p);
+  }
+}
+createParticles();
+
+// ===== Scroll Reveal =====
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+document.querySelectorAll('.reveal-item').forEach(el => observer.observe(el));
+
+// ===== Mobile Menu =====
+const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+const mobileMenu = document.getElementById('mobileMenu');
+const mobileMenuClose = document.getElementById('mobileMenuClose');
+
+function closeMobileMenu() { mobileMenu.classList.remove('active'); }
+mobileMenuBtn.addEventListener('click', () => mobileMenu.classList.add('active'));
+mobileMenuClose.addEventListener('click', closeMobileMenu);
+
+// ===== Proposal Generator =====
+document.getElementById('generateProposal').addEventListener('click', function() {
+  const type = document.getElementById('projType').value;
+  const budget = document.getElementById('projBudget').value;
+  const timeline = document.getElementById('projTimeline').value;
+  const badge = document.getElementById('aiStatusBadge');
+
+  badge.innerHTML = '<div class="w-1.5 h-1.5 rounded-full bg-yellow-400 animate-pulse"></div><span class="text-yellow-400">Generating...</span>';
+
+  setTimeout(() => {
+    const scopes = {
+      'Web Application': 'Full-stack web application with responsive UI, REST API integration, user authentication, admin dashboard, and analytics.',
+      'Mobile App': 'Cross-platform mobile application with native UI components, push notifications, offline mode, and cloud sync.',
+      'Brand Design': 'Complete brand identity including logo variations, color palette, typography system, brand guidelines document, and stationery.',
+      'API Development': 'RESTful API with comprehensive documentation, authentication, rate limiting, error handling, and automated testing.',
+      'UI/UX Design': 'Complete UI/UX design with user research, wireframes, interactive prototypes, design system, and usability testing.'
+    };
+
+    const output = document.getElementById('proposalOutput');
+    output.innerHTML = `
+      <div class="p-4 rounded-xl" style="background: rgba(15,20,40,0.6); border: 1px solid rgba(99,102,241,0.1);">
+        <div class="text-indigo-400 text-xs mb-2">// AI-GENERATED PROPOSAL</div>
+        <div class="text-gray-400 leading-relaxed">
+          <span class="text-white font-semibold">Project:</span> ${type}<br><br>
+          <span class="text-white font-semibold">Scope:</span> ${scopes[type] || scopes['Web Application']}<br><br>
+          <span class="text-white font-semibold">Budget:</span> <span class="text-cyan-400">${budget}</span><br>
+          <span class="text-white font-semibold">Timeline:</span> <span class="text-purple-400">${timeline}</span><br>
+          <span class="text-white font-semibold">Deliverables:</span> Source files, deployment, documentation, 30-day post-launch support.<br>
+          <span class="text-white font-semibold">Payment:</span> 50% upfront, 50% on delivery.
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <button onclick="showInlineToast('Proposal copied! 📋')" class="flex-1 py-2.5 rounded-xl text-xs font-medium text-indigo-300 flex items-center justify-center gap-1.5 transition-colors hover:text-white" style="background: rgba(99,102,241,0.1); border: 1px solid rgba(99,102,241,0.2);">
+          <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copy
+        </button>
+        <button onclick="showInlineToast('Proposal sent! ✉️')" class="flex-1 py-2.5 rounded-xl text-xs font-medium text-cyan-300 flex items-center justify-center gap-1.5 transition-colors hover:text-white" style="background: rgba(6,182,212,0.1); border: 1px solid rgba(6,182,212,0.2);">
+          <i data-lucide="send" class="w-3.5 h-3.5"></i> Send
+        </button>
+      </div>
+    `;
+    lucide.createIcons();
+    badge.innerHTML = '<div class="w-1.5 h-1.5 rounded-full bg-green-400"></div><span class="text-green-400">Complete</span>';
+  }, 1500);
+});
+
+// ===== Chat =====
+const chatInput = document.getElementById('chatInput');
+const chatSend = document.getElementById('chatSend');
+const chatMessages = document.getElementById('chatMessages');
+
+const aiResponses = [
+  "I've analyzed your project timeline. You're 3 days ahead of schedule on the Patel project! 🎯",
+  "Based on your earnings pattern, I recommend raising your hourly rate by 15%. Your skills are worth it! 💰",
+  "I've drafted a follow-up email for your pending invoices. Want me to send it? ✉️",
+  "Your portfolio is looking great! Consider adding case studies — they increase client conversions by 40%. 📊",
+  "I noticed a scheduling conflict on Jan 20. Want me to suggest alternative deadlines? 📅"
+];
+
+function addChatMessage(text, isUser) {
+  const msgDiv = document.createElement('div');
+  msgDiv.className = `flex gap-3 ${isUser ? 'justify-end' : ''} chat-bubble-anim`;
+  if (isUser) {
+    msgDiv.innerHTML = `<div class="px-4 py-3 rounded-2xl rounded-tr-sm max-w-xs text-sm" style="background: linear-gradient(135deg, #6366f1, #7c3aed);"><span class="text-white">${text}</span></div>`;
+  } else {
+    msgDiv.innerHTML = `
+      <div class="w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center" style="background: linear-gradient(135deg, #6366f1, #06b6d4);"><i data-lucide="bot" class="w-3.5 h-3.5 text-white"></i></div>
+      <div class="px-4 py-3 rounded-2xl rounded-tl-sm max-w-xs text-sm" style="background: rgba(99,102,241,0.1); border: 1px solid rgba(99,102,241,0.15);"><span class="text-gray-300">${text}</span></div>
+    `;
+  }
+  chatMessages.appendChild(msgDiv);
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+  lucide.createIcons();
+}
+
+function handleChat() {
+  const text = chatInput.value.trim();
+  if (!text) return;
+  addChatMessage(text, true);
+  chatInput.value = '';
+
+  // Typing indicator
+  const typing = document.createElement('div');
+  typing.className = 'flex gap-3 chat-bubble-anim';
+  typing.id = 'typingIndicator';
+  typing.innerHTML = `
+    <div class="w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center" style="background: linear-gradient(135deg, #6366f1, #06b6d4);"><i data-lucide="bot" class="w-3.5 h-3.5 text-white"></i></div>
+    <div class="px-4 py-3 rounded-2xl rounded-tl-sm text-sm" style="background: rgba(99,102,241,0.1); border: 1px solid rgba(99,102,241,0.15);">
+      <span class="text-gray-500 flex gap-1"><span class="animate-bounce" style="animation-delay:0s;">●</span><span class="animate-bounce" style="animation-delay:0.15s;">●</span><span class="animate-bounce" style="animation-delay:0.3s;">●</span></span>
+    </div>
+  `;
+  chatMessages.appendChild(typing);
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+  lucide.createIcons();
+
+  setTimeout(() => {
+    const ti = document.getElementById('typingIndicator');
+    if (ti) ti.remove();
+    addChatMessage(aiResponses[Math.floor(Math.random() * aiResponses.length)], false);
+  }, 1200 + Math.random() * 800);
+}
+
+chatSend.addEventListener('click', handleChat);
+chatInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); handleChat(); } });
+
+// ===== Inline Toast =====
+function showInlineToast(msg) {
+  const toast = document.getElementById('inlineToast');
+  toast.textContent = msg;
+  toast.style.opacity = '1';
+  toast.style.transform = 'translateY(0)';
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateY(20px)';
+  }, 2500);
+}
+
+// ===== Smooth scroll =====
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', (e) => {
+    e.preventDefault();
+    const target = document.querySelector(a.getAttribute('href'));
+    if (target) target.scrollIntoView({ behavior: 'smooth' });
+  });
+});
+
+// Init Lucide
+lucide.createIcons();
+</script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9dec999730758fac',t:'MTc3MzkyNDU5Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
